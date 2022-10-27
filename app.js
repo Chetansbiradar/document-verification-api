@@ -1,36 +1,38 @@
-const express  = require('express');
-const mongoose = require('mongoose');
-const authRouter = require("./routes/auth")
-const bodyParser = require('body-parser')
-require('dotenv/config')
+require("dotenv").config();
+const PORT = process.env.PORT || 5000;
 
+const express = require("express");
 const app = express();
+const cors = require("cors");
+const morgan = require("morgan");
 
-//MIDDLEWARE (eg: used to check if user is auth before going to that route)
-app.use(bodyParser.json())
-// app.use('/posts',postRouter)
+app.use(morgan("dev"));
+app.use(express.json());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
-//Routes
-// app.get('/',(req,res)=>{
-//     res.json({message:"Hello World"});
-// });
-app.use("/api/auth/",authRouter);
+const mongoose = require("mongoose");
+const MONGO_URI = process.env.DATABASE_URL;
 
-//connect to db
-try {
-    mongoose.connect(process.env.DATABASE_URL)
-    const database = mongoose.connection
-    database.on('error', (error) => {
-        console.log(error)
-    })
-    
-    database.once('connected', () => {
-        console.log('Database Connected');
-    })
-} catch (error) {
-    console.log("MongoDB Connect Error:",error);
-}
+mongoose.connect(
+  MONGO_URI,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) return console.error(err);
+    console.log("Connected to DB");
+  }
+);
 
+const authRouter = require("./routes/auth");
+app.use("/api/auth/", authRouter);
 
-//HOW TO START LISTIING TO THE SERVER
-app.listen(5000);
+app.listen(PORT, () => {
+  console.log(`listening at http://localhost:${PORT}`);
+});

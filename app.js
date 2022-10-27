@@ -5,9 +5,11 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(cookieParser())
 app.use(
   cors({
     origin: ["http://localhost:3000"],
@@ -32,6 +34,12 @@ mongoose.connect(
 
 const authRouter = require("./routes/auth");
 app.use("/api/auth/", authRouter);
+
+const adminRouter = require("./routes/admin")
+app.use("/api/admin/", adminRouter);
+
+const postRouter = require("./routes/post")
+app.use("/api/post/", postRouter);
 
 app.listen(PORT, () => {
   console.log(`listening at http://localhost:${PORT}`);

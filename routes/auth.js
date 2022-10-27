@@ -3,33 +3,41 @@ const User = require("../models/User");
 // const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const joiSchema = require("./validation");
+const RegisterValidator = require("./validation");
 
-//
+
+//Register
 router.post("/register",async (req,res)=>{
-    const salt = await bcrypt.genSalt(10);
+    
+    //Validate
+    const {error} = RegisterValidator(req.body)
+    if(error){
+        return res.status(200).json({"error":{message:error.details[0].message}})
+    }
+
+    //check if email exits
+    const emailExits = await User.findOne({email:req.body.email});
+    if(emailExits){
+        return res.status(400).json({"error":{message:"email already exists"}})
+    }
+
+    //register user if all good
+    const salt = await bcrypt.genSalt(10); //salting
+    const hasedPassword = await bcrypt.hash(req.body.password,salt) //hashing
     console.log(req.params);
     const newUser = new User({
-        username:req.body.username,
         name:req.body.name,
         email:req.body.email,
-        password: await bcrypt.hash(req.body.password,salt)
-        // password: CryptoJS.AES.encrypt(
-        //     req.body.password,process.env.CRYPTOJS_PASS_SEC
-        //     ).toString()
+        password: hasedPassword
         });
         try{
             const savedUser = await newUser.save();
-            res.status(201).json(savedUser);
+            const {accessLevel,password,...savedUserResponse} = savedUser._doc;
+            res.status(201).json(savedUserResponse);
         }catch(err){
-            if(err.keyValue.username){
-                res.status(500).json({err:"User Already Exist"})
-            }
-            else if(err.keyValue.email){
-                res.status(500).json({err:"Email Already Exist"})
-            }else{
-                res.status(500).json({err:"Something went wrong!"});
-            }
-        // console.log(err);
+            res.status(500).json({error:"Something went wrong!"});
+            console.log(err);
     }
 });
 
@@ -37,31 +45,30 @@ router.post("/register",async (req,res)=>{
 //Login
 router.post("/login",async(req,res)=>{
     try {
-        const user = await User.findOne({username: req.body.username});
+        const user = await User.findOne({email: req.body.email});
+        console.log(user)
         
-        if(!user){
-            res.status(401).json("Invalid Credentials");
-        }else{
-            // const hasedPassword = CryptoJS.AES.decrypt(user.password,process.env.CRYPTOJS_PASS_SEC);
-            const password = await bcrypt.compare(req.body.password,user.password);
-            // const password = hasedPassword.toString(CryptoJS.enc.Utf8);
-            // console.log(password,user);
-            // password!=req.body.password && res.status(401).json("Invalid Credentials!");
-            if(!password){
-                res.status(401).json("Invalid Credentials!");
-            }else{
-                // const {password,...others} = user._doc;
-                const accessToken = jwt.sign({
-                    id:user._id,
-                    accessLevel:user.accessLevel,
-                    isApproved:user.isApproved
-                },
-                process.env.JWT_SECRET,
-                {expiresIn:"3d"});
+        if(!user) return res.status(401).json("Invalid Credentialse e");
+        const password = await bcrypt.compare(req.body.password,user.password);
 
-                res.status(200).json(accessToken);
+        console.log(password)
+        if(!password) return res.status(401).json("Invalid Credentials! p");
+
+        const accessToken = jwt.sign(
+            {
+                id:user._id,
+                email:user.email,
+                name:user.name,
+                accessLevel:user.accessLevel
+            },
+            process.env.JWT_SECRET,
+            {   expiresIn:"3d" 
             }
-        }
+        );
+        res.cookie("auth_token",accessToken,{ expires: new Date(Date.now() + 3*24*60*60*1000), httpOnly: true })
+        .status(200)
+        .send({"message":"Logged in successfully"}); //15 days
+
     } catch (error) {
         res.status(500).json(error)
     }

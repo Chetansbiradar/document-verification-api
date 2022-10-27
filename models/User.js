@@ -1,31 +1,27 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-    username:{
-        type: String,
-        required: true,
-        unique:true
-    },
     name:{
         type: String,
-        required: true
+        required: true,
+        min: 3,
+        max:50
     },
     email:{
         type: String,
         required: true,
-        unique:true
+        unique:true,
+        max:1500
     },
     accessLevel:{
         type:Number,
         default: 0
     },
-    isApproved:{
-        type:Boolean,
-        default:false
-    },
     password:{
         type:String,
-        required:true
+        required:true,
+        min:6,
+        max:1024
     }
 
 },{timestamps:true});

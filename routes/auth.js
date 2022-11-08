@@ -1,9 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User");
-// const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const joiSchema = require("./validation");
 const RegisterValidator = require("./validation");
 
 
@@ -67,7 +65,7 @@ router.post("/login",async(req,res)=>{
         );
         res.cookie("auth_token",accessToken,{ expires: new Date(Date.now() + 3*24*60*60*1000), httpOnly: true })
         .status(200)
-        .send({"message":"Logged in successfully"}); //15 days
+        .send({"message":"Logged in successfully"}); //3 days
 
     } catch (error) {
         res.status(500).json(error)

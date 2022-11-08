@@ -7,9 +7,17 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 
+// //TO-DO auto-extract text
+// const tesseract_ocr = require("node-tesseract-ocr");
+// const config = {
+//   lang: "eng",
+//   oem: 1,
+//   psm: 3,
+// };
+
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
@@ -32,14 +40,30 @@ mongoose.connect(
   }
 );
 
+// const postRouter = require("./routes/post")
+// app.use(express.urlencoded({ extended: true }))
+// app.get("/api/test/", (req,res)=>{
+//   console.log(req)
+// });
+
 const authRouter = require("./routes/auth");
 app.use("/api/auth/", authRouter);
 
-const adminRouter = require("./routes/admin")
+const adminRouter = require("./routes/admin");
 app.use("/api/admin/", adminRouter);
 
-const postRouter = require("./routes/post")
-app.use("/api/post/", postRouter);
+const docsRouter = require("./routes/docs");
+app.use("/api/docs/", docsRouter);
+
+const testRouter = require("./routes/test");
+app.use("/api/subject/", testRouter);
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require("./apiDocs/swagger.json")
+var options = {
+  customJs: '/custom.js'
+};
+app.use('/api/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
 app.listen(PORT, () => {
   console.log(`listening at http://localhost:${PORT}`);

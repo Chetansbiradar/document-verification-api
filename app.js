@@ -7,14 +7,6 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 
-// //TO-DO auto-extract text
-// const tesseract_ocr = require("node-tesseract-ocr");
-// const config = {
-//   lang: "eng",
-//   oem: 1,
-//   psm: 3,
-// };
-
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());

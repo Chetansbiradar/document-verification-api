@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req,res,next)=>{
-    const token  = req.cookies.auth_token;
+    const token  = req.headers.authorization
     if(!token) return res.status(403).json({"error":{"message":"Token Missing, did you get one?"}})
 
     jwt.verify(token,process.env.JWT_SECRET,(err,user)=>{
@@ -25,6 +25,7 @@ const verifyTokenAndAuthorization = (req,res,next)=>{
 };
 
 const verifyTokenAndAdmin = (req,res,next)=>{
+    console.log(req);
     verifyToken(req,res,()=>{
         console.log(req.user)
         if(req.user.accessLevel === 2){

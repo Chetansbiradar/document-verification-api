@@ -54,6 +54,12 @@ const ReportCardSchema = new mongoose.Schema({
   cgpa: {
     type: Number,
     required: true,
+  },
+  imageName:{
+    type:String
+  },
+  imageUrl:{
+    type: String
   }
 });
 

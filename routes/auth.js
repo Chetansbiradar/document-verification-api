@@ -44,28 +44,22 @@ router.post("/register",async (req,res)=>{
 router.post("/login",async(req,res)=>{
     try {
         const user = await User.findOne({email: req.body.email});
-        console.log(user)
-        
         if(!user) return res.status(401).json("Invalid Credentialse e");
         const password = await bcrypt.compare(req.body.password,user.password);
-
-        console.log(password)
         if(!password) return res.status(401).json("Invalid Credentials! p");
 
         const accessToken = jwt.sign(
             {
                 id:user._id,
-                email:user.email,
                 name:user.name,
+                email:user.email,
                 accessLevel:user.accessLevel
             },
             process.env.JWT_SECRET,
             {   expiresIn:"3d" 
             }
         );
-        res.cookie("auth_token",accessToken,{ expires: new Date(Date.now() + 3*24*60*60*1000), httpOnly: true })
-        .status(200)
-        .send({"message":"Logged in successfully"}); //3 days
+        res.status(200).json({accessToken:accessToken,"message":"Login Successful"});
 
     } catch (error) {
         res.status(500).json(error)

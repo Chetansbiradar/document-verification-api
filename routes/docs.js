@@ -1,12 +1,23 @@
 const router = require("express").Router();
 const Document = require("../models/ReportCard");
-const {verifyTokenAndAdmin,verifyTokenAndAuthorization} = require("./verifyToken");
-// const joiSchema = require("./validation");
-// const RegisterValidator = require("./validation");
+const {verifyTokenAndAdmin,verifyTokenAndAuthorization} = require("../utils/verifyToken");
 
-// @route   GET api/docs
-// @desc    Get all docs
-// @access  Public
+//docs admin routes
+
+//upload Student Report Card
+router.post("/upload",verifyTokenAndAdmin,async (req, res) => {
+    const newDoc = new Document(req.body);
+    console.log(newDoc);
+    try {
+        // const doc = await newDoc.save();
+        // if (!doc) throw Error("Something went wrong while saving the doc");
+        res.status(200).json({"hello":"world"});
+    } catch (e) {
+        res.status(400).json({ msg: e.message });
+    }
+});
+
+
 router.get("/",verifyTokenAndAdmin,async (req, res) => {
     try {
         const docs = await Document.find();
@@ -15,11 +26,8 @@ router.get("/",verifyTokenAndAdmin,async (req, res) => {
     } catch (e) {
         res.status(400).json({ msg: e.message });
     }
-})
+});
 
-// @route   POST api/docs
-// @desc    Create a doc
-// @access  verifyTokenAndAdmin
 router.post("/",verifyTokenAndAdmin,async (req, res) => {
     const newDoc = new Document(req.body);
     try {
@@ -29,8 +37,6 @@ router.post("/",verifyTokenAndAdmin,async (req, res) => {
     } catch (e) {
         res.status(400).json({ msg: e.message });
     }
-})
-
-
+});
 
 module.exports = router

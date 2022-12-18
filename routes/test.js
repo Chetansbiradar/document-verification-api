@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const ReportCard = require("../models/ReportCard");
-const { verifyTokenAndAdmin } = require("./verifyToken");
+const { verifyTokenAndAdmin } = require("../utils/verifyToken");
 
 const multer = require("multer");
 const upload = multer({

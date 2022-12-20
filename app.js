@@ -47,6 +47,9 @@ app.use("/api/admin/", adminRouter);
 const docsRouter = require("./routes/docs");
 app.use("/api/docs/", docsRouter);
 
+const userRouter = require("./routes/user");
+app.use("/api/user/", userRouter);
+
 const testRouter = require("./routes/test");
 app.use("/api/subject/", testRouter);
 

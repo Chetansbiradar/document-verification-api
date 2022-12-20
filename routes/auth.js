@@ -32,7 +32,7 @@ router.post("/register", async (req, res) => {
     const savedUser = await newUser.save();
     if (!savedUser) throw Error("Something went wrong while saving the user");
 
-    const accessToken = createToken(savedUser, process.env.JWT_SECRET, "3d");
+    const accessToken = await createToken(savedUser, process.env.JWT_SECRET, "3d");
 
     res
       .cookie("token", accessToken, {
@@ -41,6 +41,7 @@ router.post("/register", async (req, res) => {
       .status(200)
       .json({
         success: true,
+        accessToken,
         message: "User registered successfully",
       });
   } catch (err) {
